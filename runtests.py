@@ -1,6 +1,6 @@
 #!/usr/bin/env python
+import os.path
 import sys
-from os.path import dirname, abspath
 
 from django.conf import settings
 
@@ -11,7 +11,8 @@ if not settings.configured:
             "django.contrib.contenttypes",
             "django.contrib.auth",
             "model_adapter",
-            "model_adapter.tests.test_app",
+            "tests.test_app_one",
+            "tests.test_app_two",
         ]
     )
 
@@ -20,7 +21,7 @@ from django.test.simple import run_tests
 def runtests(*test_args):
     if not test_args:
         test_args = ["tests"]
-    parent = dirname(abspath(__file__))
+    parent = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, parent)
     failures = run_tests(test_args, verbosity=1, interactive=True)
     sys.exit(failures)
