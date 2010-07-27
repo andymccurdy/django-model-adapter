@@ -12,13 +12,13 @@ if not settings.configured:
         INSTALLED_APPS=[
             "django.contrib.contenttypes",
             "django.contrib.auth",
+            "model_adapter",
             "tests.test_app_one",
             "tests.test_app_two",
             "tests.test_driver",
         ],
         ADAPTIVE_MODELS=ADAPTIVE_MODELS
     )
-
 from django.test.simple import run_tests
 
 def runtests(*test_args):

@@ -16,20 +16,25 @@ class ForeignKeyTestCase(TestCase):
         self.assertEquals(FKAdaptedViaDict._meta.get_field('user').rel.to, MyUser)
         
     def test_adapted_with_field_map(self):
-        self.assertNotEquals(FKAdaptedViaDictWithMap._meta.get_field('user').rel.to, MyUser)
-        self.assert_(issubclass(FKAdaptedViaDictWithMap._meta.get_field('user').rel.to, MyUser))
+        self.assertEquals(FKAdaptedViaDictWithMap._meta.get_field('user').rel.to, MyUser)
 
-        self.assert_(getattr(FKAdaptedViaDictWithMap, 'new_id', None) is None)
-        self.assert_(isinstance(
-            getattr(FKAdaptedViaDictWithMap._meta.get_field('user').rel.to, 'new_id', None),
-            AdaptiveDescriptor
-            ))
-
-    def test_save_and_restore(self):
+    def test_proxy(self):
+        # assign a normal user
         user = MyUser.objects.create()
         t = FKAdaptedViaDictWithMap.objects.create(user=user)
-        t.user_id = user.id
+        self.assertEquals(t.user_id, user.id)
 
         t = FKAdaptedViaDictWithMap.objects.get(pk=t.id)
-        self.assertEquals(t.user.new_id, user.id)
+        # t.user should be our proxy object with appropriate accessors
+        self.assertEquals(t.user.test_id, user.id)
+        self.assertEquals(t.user.test_func(), user.id)
+
+        # our proxy should test positively for equality when comapring to
+        # the normal model
+        self.assertEquals(user, t.user)
+
+        # and we should be able to assign our proxy object to another instance
+        t2 = FKAdaptedViaDictWithMap.objects.create(user=t.user)
+        t2 = FKAdaptedViaDictWithMap.objects.get(pk=t2.id)
+        self.assertEquals(t.user, t2.user)
         
